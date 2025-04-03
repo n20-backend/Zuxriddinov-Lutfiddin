@@ -1,1 +1,1 @@
-# Zuxriddinov-Lutfiddin
+# zuxriddinov-lutfiddin
