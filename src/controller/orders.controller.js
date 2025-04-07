@@ -1,10 +1,8 @@
+import * as orderServices from "../service/orders.services.js"
 
-import * as userServices from "../service/users.services.js"
-import { UserValidation } from "../validations/user.validation.js";
-
-export const getAllUsers = async (req, res) => {
+export const getAllOrders = async (req, res) => {
     try {
-        const users = await userServices.getAllUsers();
+        const users = await orderServices.getAllOrders();
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -12,10 +10,10 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-export const getUserById = async (req, res) => {
+export const getOrderById = async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await userServices.getUserById(id);
+        const user = await orderServices.getOrderById(id);
         if (user) {
             res.json(user);
         } else {
@@ -27,29 +25,25 @@ export const getUserById = async (req, res) => {
     }
 }
 
-export const createUser = async (req, res)=> {
+export const createOrder = async (req, res)=> {
     const body = req.body;
-    const {error,value} = UserValidation(body)
-    if(error){
-        return res.status(400).send({error:"Error Inside Validation"})
-    }
     try{
-        const user = await userServices.createUser(value);
+        const user = await orderServices.createOrder(body);
         if(user){
             res.status(201).send(user);
         }
     }catch(error) {
         console.log(error);
-        res.status(400).send("user yaratishda xatolik")
+        res.status(400).send("order yaratishda xatolik")
     }
 }
 
-export const updateUser = async (req, res) => {
+export const updateorder = async (req, res) => {
     const body = req.body;
     const { id } = req.params;
 
     try {
-        const user = await userServices.updateUser(id, body);
+        const user = await orderServices.updateOrder(id, body);
         if (user) {
             res.status(200).json(user); 
         } else {
@@ -61,10 +55,10 @@ export const updateUser = async (req, res) => {
     }
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteOrder = async (req, res) => {
     const { id } = req.params; 
     try {        
-        const user = await userServices.deleteUser(id);
+        const user = await orderServices.deleteOrder(id);
         console.log(user);
         
         if (!user) {

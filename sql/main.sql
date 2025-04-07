@@ -64,6 +64,7 @@ CREATE TABLE orders (
     CONSTRAINT updated_at_check CHECK (updated_at >= created_at)
 );
 
+
 INSERT INTO orders (id, transportId, userId, startDate, endDate, totalAmount, currency, status)
 VALUES 
 (uuid_generate_v4(), (SELECT transport_id FROM transport LIMIT 1), (SELECT user_id FROM users LIMIT 1), '2024-04-01', '2024-04-05', 100.00, 'USD', 'approved'),

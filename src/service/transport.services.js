@@ -13,11 +13,11 @@ export const getTransportById = async (id) => {
 export const createTransport = async (data) => {
     const {
         registrationNumber,
-        type = 'car',
+        type,
         make,
         model,
         year,
-        status = 'available'
+        status
     } = data;
 
     const result = await client.query(
@@ -33,9 +33,9 @@ export const createTransport = async (data) => {
 export const updateTransport = async (id, data) => {
     const old = await getTransportById(id);
     if (!old) return null;
-
+    console.log(old.year);
     const updated = {
-        registrationNumber: data.registrationNumber || old.registrationNumber,
+        registrationnumber: data.registrationnumber || old.registrationnumber,
         type: data.type || old.type,
         make: data.make || old.make,
         model: data.model || old.model,
@@ -54,7 +54,7 @@ export const updateTransport = async (id, data) => {
             updated_at = CURRENT_TIMESTAMP
          WHERE transport_id = $7 RETURNING *`,
         [
-            updated.registrationNumber,
+            updated.registrationnumber,
             updated.type,
             updated.make,
             updated.model,
