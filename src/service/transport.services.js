@@ -11,24 +11,36 @@ export const getTransportById = async (id) => {
 };
 
 export const createTransport = async (data) => {
-    const {
-        registrationNumber,
-        type,
-        make,
-        model,
-        year,
-        status
-    } = data;
+    const newTransport = { ...data };
+
+    if (
+        !newTransport.registrationNumber || 
+        !newTransport.type || 
+        !newTransport.make || 
+        !newTransport.model || 
+        !newTransport.year || 
+        !newTransport.status
+    ) {
+        throw new Error("Transport yaratishda maydonlar to'liq emas!");
+    }
 
     const result = await client.query(
         `INSERT INTO transport (
             registrationNumber, type, make, model, year, status
         ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [registrationNumber, type, make, model, year, status]
+        [
+            newTransport.registrationNumber, 
+            newTransport.type, 
+            newTransport.make, 
+            newTransport.model, 
+            newTransport.year, 
+            newTransport.status
+        ]
     );
 
     return result.rows[0];
 };
+
 
 export const updateTransport = async (id, data) => {
     const old = await getTransportById(id);
