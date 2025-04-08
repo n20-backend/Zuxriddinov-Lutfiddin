@@ -48,25 +48,24 @@ export const createRepair = async (body) => {
 export const updateRepair = async (id, body) => {
     try {
         // Eski ta'mirlashni olish
-        const oldRepairQuery = 'SELECT * FROM repair WHERE id = $1';
-        const oldRepairResult = await client.query(oldRepairQuery, [id]);
-        const oldRepair = oldRepairResult.rows[0];
+        const oldRepairResult = await getRepairById(id);
 
-        if (!oldRepair) {
+        // Agar natija bo'lmasa, xatolikni qaytarish
+        if (!oldRepairResult || oldRepairResult.length === 0) {
             throw new Error("Ta'mirlash topilmadi");
         }
 
-        
+        const oldRepair = oldRepairResult[0]; // oldRepairResult bo'sh emasligini tekshirgandan keyin, birinchi elementni olish
+
         const updatedRepair = {
-            transportId: body.transportid || oldRepair.transportid,
+            transportid: body.transportid || oldRepair.transportid,
             description: body.description || oldRepair.description,
             cost: body.cost || oldRepair.cost,
             date: body.date || oldRepair.date,
             status: body.status || oldRepair.status,
-            updated_at: new Date().toISOString() 
+            updated_at: new Date().toISOString()
         };
 
-        // So'rovni tayyorlash
         const query = `UPDATE repair SET 
             transportid = $1, 
             description = $2, 
@@ -78,7 +77,7 @@ export const updateRepair = async (id, body) => {
             RETURNING *`;
 
         const values = [
-            updatedRepair.transportId,
+            updatedRepair.transportid,
             updatedRepair.description,
             updatedRepair.cost,
             updatedRepair.date,
@@ -87,13 +86,29 @@ export const updateRepair = async (id, body) => {
             id
         ];
 
-        // So'rovni yuborish
         const result = await client.query(query, values);
         const repair = result.rows[0];
 
         return repair;
     } catch (error) {
         console.error("Error updating repair:", error);
+        throw new Error("Ta'mirlashni yangilashda xatolik yuz berdi");
+    }
+};
+
+export const deleteRepair = async (id) => {
+    try {
+        const result = await client.query('DELETE FROM repair WHERE id = $1 RETURNING id', [id]);
+        console.log(id);
+        
+        if (result.rows.length === 0) {
+            return null;
+        }
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error deleting user:', error);
         throw error;
     }
 };
+
+

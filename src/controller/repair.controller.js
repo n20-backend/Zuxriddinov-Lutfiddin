@@ -1,11 +1,11 @@
-import * as repairservices from "../service/repair.sevices.js"
+import * as repairServices from '../service/repair.sevices.js';  
 
 export const getAllRepair = async (req, res) => {
     try {
-        const users = await repairservices.getAllRepair();
-        res.json(users);
+        const repairs = await repairServices.getAllRepair();
+        res.json(repairs);
     } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching repairs:', error);
         res.status(500).json({ error: 'Serverda xatolik yuz berdi' });
     }
 };
@@ -13,46 +13,57 @@ export const getAllRepair = async (req, res) => {
 export const getRepairById = async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await repairservices.getRepairById(id);
-        if (user) {
-            res.json(user);
+        const repair = await repairServices.getRepairById(id);
+        if (repair && repair.length > 0) {
+            res.json(repair[0]); 
         } else {
-            res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+            res.status(404).json({ error: 'Ta\'mirlash topilmadi' });
         }
     } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Error fetching repair by ID:', error);
         res.status(500).json({ error: 'Serverda xatolik yuz berdi' });
-    }
-}
-
-export const createRepair = async (req, res) => {
-    const body = req.body
-    try {
-        const newRepair = await repairservices.createRepair(body);
-        res.status(201).json(newRepair);
-    } catch (err) {
-        console.log(err);
-        res.status(500).send('Xatolik');
     }
 };
 
-import * as repairServices from '../service/repair.services.js';  
+export const createRepair = async (req, res) => {
+    const body = req.body;
+    try {
+        const newRepair = await repairServices.createRepair(body);
+        res.status(201).json(newRepair);
+    } catch (err) {
+        console.error('Error creating repair:', err);
+        res.status(500).json({ error: 'Ta\'mirlash yaratishda xatolik yuz berdi' });
+    }
+};
 
 export const updateRepair = async (req, res) => {
-    const body = req.body;
-    const { id } = req.params;
-
-    try {
-        
-        const repair = await repairServices.updateRepair(id, body);
-
-        if (repair) {
-            res.status(200).json(repair);  
-        } else {
-            res.status(404).json({ error: 'Ta\'mirlash topilmadi' });  
+        const body = req.body;
+        const { id } = req.params;
+    
+        try {
+            const repair = await repairServices.updateRepair(id, body);
+            if (repair) {
+                res.status(200).json(repair);  
+            } else {
+                res.status(404).json({ error: 'Ta\'mirlash topilmadi' });  
+            }
+        } catch (error) {
+            console.error('Error updating repair:', error);
+            res.status(500).json({ error: 'Ta\'mirlashni yangilashda xatolik yuz berdi' });  
         }
+    };
+
+export const deleteRepair = async (req, res) => {
+    const { id } = req.params; 
+    try {        
+        const user = await repairServices.deleteRepair(id);
+        console.log(user);
+        
+        if (!user) {
+            return res.status(400).send("repair topilmadi!❌");  
+        }
+        res.status(200).send("repair delete successfully✅");  
     } catch (error) {
-        console.log("Error updating repair:", error);
-        res.status(400).json({ error: 'Ta\'mirlashni yangilashda xatolik' });  
-    }
+        console.log(error);
+        res.status(400).send("Xatolik yuz berdi!");      }
 };

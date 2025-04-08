@@ -19,4 +19,4 @@ pool.connect((err) => {
     }
 })
 
-export default pool; // ✅ Default eksport qo'shildi
+export default pool;

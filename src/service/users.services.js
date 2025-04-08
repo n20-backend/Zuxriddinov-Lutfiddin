@@ -1,4 +1,5 @@
 import client from "../db/index.js"
+import bcrypt from "bcrypt";
 
 export const getAllUsers = async () => {
     try {
@@ -44,55 +45,54 @@ export const createUser = async (body) => {
     }
 }
 
-export const updateTransport = async (id, body) => {
+export const updateUser = async (id, body) => {
     try {
-        const oldTransportQuery = 'SELECT * FROM transport WHERE transport_id = $1';
-        const oldTransportResult = await client.query(oldTransportQuery, [id]);
-        const oldTransport = oldTransportResult.rows[0];
+        const oldUserRows = await getUserById(id);
+        const oldUser = oldUserRows[0];
 
-        if (!oldTransport) {
-            throw new Error("Transport topilmadi");
+        if (!oldUser) {
+            throw new Error("Foydalanuvchi topilmadi");
         }
 
-        const updatedTransport = {
-            registrationNumber: body.registrationNumber || oldTransport.registrationNumber,
-            type: body.type || oldTransport.type,
-            make: body.make || oldTransport.make,
-            model: body.model || oldTransport.model,
-            year: body.year || oldTransport.year,
-            status: body.status || oldTransport.status,
-            updated_at: new Date().toISOString() // Yangilangan sana
+        // Parolni alohida tekshirib, hash qilish
+        let updatedPassword = oldUser.password;
+        if (body.password && body.password !== oldUser.password) {
+            updatedPassword = await bcrypt.hash(body.password, 10);
+        }
+
+        const updatedUser = {
+            email: body.email || oldUser.email,
+            user_name: body.user_name || oldUser.user_name,
+            password: updatedPassword,
+            role: body.role || oldUser.role,
+            status: body.status || oldUser.status,
+            updated_at: new Date().toISOString()
         };
 
-        const query = `UPDATE transport SET 
-            registrationNumber = $1, 
-            type = $2, 
-            make = $3, 
-            model = $4, 
-            year = $5, 
-            status = $6,
-            updated_at = $7
-            WHERE transport_id = $8 
+        const query = `UPDATE users SET 
+            email = $1,
+            user_name = $2,
+            password = $3,
+            role = $4,
+            status = $5,
+            updated_at = $6
+            WHERE user_id = $7
             RETURNING *`;
 
         const values = [
-            updatedTransport.registrationNumber, 
-            updatedTransport.type, 
-            updatedTransport.make, 
-            updatedTransport.model, 
-            updatedTransport.year, 
-            updatedTransport.status, 
-            updatedTransport.updated_at, 
+            updatedUser.email,
+            updatedUser.user_name,
+            updatedUser.password,
+            updatedUser.role,
+            updatedUser.status,
+            updatedUser.updated_at,
             id
         ];
 
-        // So'rovni yuborish
         const result = await client.query(query, values);
-        const transport = result.rows[0];
-
-        return transport;
+        return result.rows[0];
     } catch (error) {
-        console.error("Error updating transport:", error);
+        console.error("Error updating user:", error);
         throw error;
     }
 };

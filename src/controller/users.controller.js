@@ -27,29 +27,38 @@ export const getUserById = async (req, res) => {
     }
 }
 
-export const createUser = async (req, res)=> {
+export const createUser = async (req, res) => {
     const body = req.body;
-    const {error,value} = UserValidation(body)
-    if(error){
-        return res.status(400).send({error:"Error Inside Validation"})
+    const { error, value } = UserValidation(body);
+
+    if (error) {
+        const errors = error.details.map((err) => err.message);
+        return res.status(400).send({ errors });
     }
-    try{
+
+    try {
         const user = await userServices.createUser(value);
-        if(user){
+        if (user) {
             res.status(201).send(user);
         }
-    }catch(error) {
+    } catch (error) {
         console.log(error);
-        res.status(400).send("user yaratishda xatolik")
+        res.status(500).send({ error: "Foydalanuvchini yaratishda xatolik yuz berdi" });
     }
-}
+};
+
 
 export const updateUser = async (req, res) => {
     const body = req.body;
     const { id } = req.params;
 
+    const { error, value } = UserValidation(body);
+    if (error) {
+        return res.status(400).json({ error: 'Validatsiya xatoliklari', details: error.details });
+    }
+
     try {
-        const user = await userServices.updateUser(id, body);
+        const user = await userServices.updateUser(id, value);
         if (user) {
             res.status(200).json(user); 
         } else {

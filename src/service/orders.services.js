@@ -33,8 +33,6 @@ export const getOrderById = async (id) => {
 
 export const createOrder = async (body) => {
     try {
-        console.log("Yangi buyurtma uchun kiritilgan ma'lumotlar:", body);
-
         const transportId = body.transportid;
         const userId = body.userid;
         const startDate = body.startdate;
