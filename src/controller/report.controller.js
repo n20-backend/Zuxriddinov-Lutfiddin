@@ -1,4 +1,6 @@
 import * as reportServices from '../service/report.services.js';  
+import { ReportValidation } from "../validations/report.validation.js";
+
 
 export const getAllReport = async (req, res) => {
     try {
@@ -27,9 +29,19 @@ export const getReportById = async (req, res) => {
 
 export const createReport = async (req, res) => {
     const body = req.body;
+
+    // Validatsiya
+    const { error } = ReportValidation(body);
+    if (error) {
+        return res.status(400).json({
+            message: "Kiritilgan ma'lumotlarda xatolik bor",
+            errors: error.details.map((err) => err.message)
+        });
+    }
+
     try {
         const newReport = await reportServices.createReport(body);
-        res.status(201).json(newReport);
+        res.status(201).json(newReport);  // Yangi report yaratildi
     } catch (err) {
         console.error('Error creating report:', err);
         res.status(500).json({ error: 'Report yaratishda xatolik yuz berdi' });
@@ -40,18 +52,27 @@ export const updateReport = async (req, res) => {
     const body = req.body;
     const { id } = req.params;
 
+    const { error } = ReportValidation(body, true);
+    if (error) {
+        return res.status(400).json({
+            message: "Kiritilgan ma'lumotlarda xatolik bor",
+            errors: error.details.map((err) => err.message)
+        });
+    }
+
     try {
         const report = await reportServices.updateReport(id, body);
         if (report) {
-            res.status(200).json(report);  
+            res.status(200).json(report);
         } else {
-            res.status(404).json({ error: 'Report topilmadi' });  
+            res.status(404).json({ error: 'Report topilmadi' });
         }
     } catch (error) {
         console.error('Error updating report:', error);
-        res.status(500).json({ error: 'Reportni yangilashda xatolik yuz berdi' });  
+        res.status(500).json({ error: 'Reportni yangilashda xatolik yuz berdi' });
     }
 };
+
 
 export const deleteReport = async (req, res) => {
     const { id } = req.params; 

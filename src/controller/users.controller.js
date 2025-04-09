@@ -5,6 +5,9 @@ import { UserValidation } from "../validations/user.validation.js";
 export const getAllUsers = async (req, res) => {
     try {
         const users = await userServices.getAllUsers();
+        if(!users){
+            res.status(404).send("users not found")
+        }
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -16,11 +19,10 @@ export const getUserById = async (req, res) => {
     const { id } = req.params;
     try {
         const user = await userServices.getUserById(id);
-        if (user) {
-            res.json(user);
-        } else {
-            res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+        if(!user){
+            res.status(404).send("users not found")
         }
+        res.json(user);
     } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).json({ error: 'Serverda xatolik yuz berdi' });
@@ -48,7 +50,7 @@ export const createUser = async (req, res) => {
 };
 
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
     const body = req.body;
     const { id } = req.params;
 

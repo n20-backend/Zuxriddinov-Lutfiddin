@@ -1,4 +1,6 @@
 import * as orderServices from "../service/orders.services.js"
+import { OrderValidation } from "../validations/order.validation.js"; 
+
 
 export const getAllOrders = async (req, res) => {
     try {
@@ -25,35 +27,54 @@ export const getOrderById = async (req, res) => {
     }
 }
 
-export const createOrder = async (req, res)=> {
+
+export const createOrder = async (req, res) => {
     const body = req.body;
-    try{
+
+    const { error } = OrderValidation(body);
+    if (error) {
+        return res.status(400).json({
+            message: "Ma'lumotlarda xatolik bor",
+            details: error.details.map((err) => err.message)
+        });
+    }
+
+    try {
         const user = await orderServices.createOrder(body);
-        if(user){
+        if (user) {
             res.status(201).send(user);
         }
-    }catch(error) {
+    } catch (error) {
         console.log(error);
-        res.status(400).send("order yaratishda xatolik")
+        res.status(400).send("Buyurtma yaratishda xatolik");
     }
-}
+};
 
 export const updateorder = async (req, res) => {
     const body = req.body;
     const { id } = req.params;
+
+    const { error } = OrderValidation(body);
+    if (error) {
+        return res.status(400).json({
+            message: "Ma'lumotlarda xatolik bor",
+            details: error.details.map((err) => err.message)
+        });
+    }
 
     try {
         const user = await orderServices.updateOrder(id, body);
         if (user) {
             res.status(200).json(user); 
         } else {
-            res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
+            res.status(404).json({ error: 'Buyurtma topilmadi' });
         }
     } catch (error) {
-        console.log("Error updating user:", error);
-        res.status(400).json({ error: 'Foydalanuvchini yangilashda xatolik' });
+        console.log("Error updating order:", error);
+        res.status(400).json({ error: 'Buyurtmani yangilashda xatolik' });
     }
 };
+
 
 export const deleteOrder = async (req, res) => {
     const { id } = req.params; 

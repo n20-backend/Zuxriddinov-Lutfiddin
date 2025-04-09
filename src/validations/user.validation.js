@@ -14,7 +14,7 @@ export const UserValidation = (body) => {
             .messages({
                 'string.base': `"email" matn bo'lishi kerak`,
                 'string.email': `"email" to'g'ri email formatida bo'lishi kerak`,
-                'string.empty': `"email" bo'sh bo'lmasligi kerak`,
+                'string.empty': `"email" bo'sh bo'lmasligi kerak`,   
                 'any.required': `"email" majburiy maydon`
             }),
         

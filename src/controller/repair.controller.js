@@ -1,4 +1,6 @@
 import * as repairServices from '../service/repair.sevices.js';  
+import { RepairValidation } from "../validations/repair.validation.js"; // Validatsiya importi
+
 
 export const getAllRepair = async (req, res) => {
     try {
@@ -25,8 +27,18 @@ export const getRepairById = async (req, res) => {
     }
 };
 
+
 export const createRepair = async (req, res) => {
     const body = req.body;
+
+    const { error } = RepairValidation(body);
+    if (error) {
+        return res.status(400).json({
+            message: "Kiritilgan ma'lumotlarda xatolik bor",
+            errors: error.details.map((err) => err.message)
+        });
+    }
+
     try {
         const newRepair = await repairServices.createRepair(body);
         res.status(201).json(newRepair);
@@ -37,21 +49,31 @@ export const createRepair = async (req, res) => {
 };
 
 export const updateRepair = async (req, res) => {
-        const body = req.body;
-        const { id } = req.params;
-    
-        try {
-            const repair = await repairServices.updateRepair(id, body);
-            if (repair) {
-                res.status(200).json(repair);  
-            } else {
-                res.status(404).json({ error: 'Ta\'mirlash topilmadi' });  
-            }
-        } catch (error) {
-            console.error('Error updating repair:', error);
-            res.status(500).json({ error: 'Ta\'mirlashni yangilashda xatolik yuz berdi' });  
+    const body = req.body;
+    const { id } = req.params;
+
+    // Validatsiya
+    const { error } = RepairValidation(body);
+    if (error) {
+        return res.status(400).json({
+            message: "Kiritilgan ma'lumotlarda xatolik bor",
+            errors: error.details.map((err) => err.message)
+        });
+    }
+
+    try {
+        const repair = await repairServices.updateRepair(id, body);
+        if (repair) {
+            res.status(200).json(repair);
+        } else {
+            res.status(404).json({ error: 'Ta\'mirlash topilmadi' });
         }
-    };
+    } catch (error) {
+        console.error('Error updating repair:', error);
+        res.status(500).json({ error: 'Ta\'mirlashni yangilashda xatolik yuz berdi' });
+    }
+};
+
 
 export const deleteRepair = async (req, res) => {
     const { id } = req.params; 
