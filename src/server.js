@@ -15,7 +15,7 @@ app.use("/orders", ordesRoutes)
 app.use("/repair", repairroutes)
 app.use("/report", reportrouter)
 
-const PORT = 4000;
+const PORT = 3000;
 
 app.listen(PORT, () => {
     console.log(`server run on port ${PORT}`);
