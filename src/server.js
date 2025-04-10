@@ -5,6 +5,10 @@ import db from "./db/index.js"
 const app = express();
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.send("Assalomu aleykum!👍")
+})
+
 app.use("/users", userRoutes);
 app.use("/transport", transportRoutes)
 app.use("/orders", ordesRoutes)
